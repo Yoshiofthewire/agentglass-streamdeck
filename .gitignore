@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+# local runtime config may hold a token — never commit it
+config.toml

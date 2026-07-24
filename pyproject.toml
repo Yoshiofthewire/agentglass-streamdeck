@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentglass-streamdeck"
+version = "0.1.0"
+description = "Drive the agentglass cockpit from an Elgato Stream Deck + — switch views, approve tool calls, watch the fleet."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "Yoshiofthewire" }]
+keywords = ["agentglass", "streamdeck", "elgato", "claude-code", "dashboard"]
+
+# Runtime deps. The pure logic (config, layout, state) imports none of these, so
+# the test suite runs on the standard library alone; they are only reached at
+# runtime by the client (websockets), the renderer (pillow) and the hardware
+# glue (streamdeck).
+dependencies = [
+    "streamdeck>=0.9.5",   # python-elgato-streamdeck — Stream Deck + (keys, dials, touchscreen)
+    "pillow>=10",          # compose key + touchscreen images
+    "websockets>=12",      # consume the agentglass /stream socket
+]
+
+[project.urls]
+Homepage = "https://github.com/Yoshiofthewire/agentglass-streamdeck"
+"agentglass" = "https://github.com/SirAllap/agentglass"
+
+[project.scripts]
+agentglass-streamdeck = "agentglass_streamdeck.__main__:main"
+
+[tool.setuptools]
+packages = ["agentglass_streamdeck"]
