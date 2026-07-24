@@ -1,0 +1,108 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Name": "agentglass",
+  "UUID": "com.agentglass.controller",
+  "Version": "0.2.0",
+  "Author": "Yoshiofthewire",
+  "Description": "Drive the agentglass cockpit — switch views, approve tool calls, and watch the fleet from a Stream Deck +.",
+  "Category": "agentglass",
+  "CategoryIcon": "imgs/plugin/category",
+  "Icon": "imgs/plugin/icon",
+  "URL": "https://github.com/Yoshiofthewire/agentglass-streamdeck",
+  "SDKVersion": 2,
+  "CodePath": "bin/plugin.js",
+  "Nodejs": {
+    "Version": "20"
+  },
+  "Software": {
+    "MinimumVersion": "6.5"
+  },
+  "OS": [
+    { "Platform": "mac", "MinimumVersion": "12" },
+    { "Platform": "windows", "MinimumVersion": "10" }
+  ],
+  "Actions": [
+    {
+      "Name": "View",
+      "UUID": "com.agentglass.controller.view",
+      "Icon": "imgs/actions/view/icon",
+      "Tooltip": "Open a workspace view (git, diff, pr, docker, term, chat).",
+      "Controllers": ["Keypad"],
+      "PropertyInspectorPath": "ui/view.html",
+      "States": [{ "Image": "imgs/actions/view/icon", "TitleAlignment": "middle" }]
+    },
+    {
+      "Name": "Command",
+      "UUID": "com.agentglass.controller.command",
+      "Icon": "imgs/actions/command/icon",
+      "Tooltip": "Run a control command: workspace, home, or open a panel.",
+      "Controllers": ["Keypad"],
+      "PropertyInspectorPath": "ui/command.html",
+      "States": [{ "Image": "imgs/actions/command/icon", "TitleAlignment": "middle" }]
+    },
+    {
+      "Name": "Approve",
+      "UUID": "com.agentglass.controller.approve",
+      "Icon": "imgs/actions/approve/idle",
+      "Tooltip": "Approve the selected held tool call. Lights up with the count.",
+      "Controllers": ["Keypad"],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        { "Image": "imgs/actions/approve/idle", "TitleAlignment": "middle" },
+        { "Image": "imgs/actions/approve/pending", "TitleAlignment": "middle" }
+      ]
+    },
+    {
+      "Name": "Deny",
+      "UUID": "com.agentglass.controller.deny",
+      "Icon": "imgs/actions/deny/icon",
+      "Tooltip": "Deny the selected held tool call.",
+      "Controllers": ["Keypad"],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [{ "Image": "imgs/actions/deny/icon", "TitleAlignment": "middle" }]
+    },
+    {
+      "Name": "Gate dial",
+      "UUID": "com.agentglass.controller.gate",
+      "Icon": "imgs/actions/gate/icon",
+      "Tooltip": "Turn to scrub the approval queue, press to approve.",
+      "Controllers": ["Encoder"],
+      "PropertyInspectorPath": "ui/settings.html",
+      "Encoder": {
+        "layout": "$B1",
+        "TriggerDescription": {
+          "Rotate": "Select approval",
+          "Push": "Approve",
+          "Touch": "Approve"
+        }
+      },
+      "States": [{ "Image": "imgs/actions/gate/icon" }]
+    },
+    {
+      "Name": "Theme dial",
+      "UUID": "com.agentglass.controller.theme",
+      "Icon": "imgs/actions/theme/icon",
+      "Tooltip": "Turn to cycle the agentglass theme.",
+      "Controllers": ["Encoder"],
+      "PropertyInspectorPath": "ui/settings.html",
+      "Encoder": {
+        "layout": "$B1",
+        "TriggerDescription": { "Rotate": "Cycle theme" }
+      },
+      "States": [{ "Image": "imgs/actions/theme/icon" }]
+    },
+    {
+      "Name": "Zoom dial",
+      "UUID": "com.agentglass.controller.zoom",
+      "Icon": "imgs/actions/zoom/icon",
+      "Tooltip": "Turn to zoom the UI, press to reset.",
+      "Controllers": ["Encoder"],
+      "PropertyInspectorPath": "ui/settings.html",
+      "Encoder": {
+        "layout": "$B1",
+        "TriggerDescription": { "Rotate": "Zoom", "Push": "Reset zoom" }
+      },
+      "States": [{ "Image": "imgs/actions/zoom/icon" }]
+    }
+  ]
+}

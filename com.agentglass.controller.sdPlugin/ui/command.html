@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="lib/pi.css" />
+  </head>
+  <body>
+    <h3>command</h3>
+    <div class="row">
+      <label for="command">Run</label>
+      <select id="command">
+        <option value="workspace">toggle workspace</option>
+        <option value="esc">home (close panels)</option>
+        <option value="open-stats">open stats</option>
+        <option value="open-skills">open skills</option>
+        <option value="open-search">open search</option>
+        <option value="open-help">open help</option>
+        <option value="open-palette">open command palette</option>
+      </select>
+    </div>
+
+    <h3>agentglass server</h3>
+    <div class="row"><label for="server">URL</label><input id="server" placeholder="http://127.0.0.1:4000" /></div>
+    <div class="row"><label for="token">Token</label><input id="token" type="password" placeholder="only if AGENTGLASS_TOKEN is set" /></div>
+
+    <script src="lib/pi.js"></script>
+    <script>
+      const command = document.getElementById("command");
+      const server = document.getElementById("server");
+      const token = document.getElementById("token");
+      AGPI.onReady(() => {
+        command.value = AGPI.settings().command || "workspace";
+        const g = AGPI.global();
+        server.value = g.server || "";
+        token.value = g.token || "";
+      });
+      command.addEventListener("change", () => AGPI.setSettings({ command: command.value }));
+      server.addEventListener("change", () => AGPI.setGlobal({ server: server.value.trim() }));
+      token.addEventListener("change", () => AGPI.setGlobal({ token: token.value.trim() }));
+    </script>
+  </body>
+</html>

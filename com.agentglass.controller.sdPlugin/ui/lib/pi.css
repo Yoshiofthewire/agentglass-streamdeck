@@ -1,0 +1,7 @@
+body { font-family: -apple-system, system-ui, "Segoe UI", sans-serif; font-size: 13px; color: #dcdcdc; background: #2d2d2d; margin: 0; padding: 10px; }
+h3 { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #8a8a8a; margin: 14px 0 4px 8px; }
+.row { display: flex; align-items: center; margin: 7px 0; gap: 8px; }
+.row label { flex: 0 0 92px; text-align: right; color: #9a9a9a; }
+.row input, .row select { flex: 1; background: #3d3d3d; border: 1px solid #555; color: #eee; border-radius: 4px; padding: 5px 6px; outline: none; }
+.row input:focus, .row select:focus { border-color: #7c6cf0; }
+.hint { color: #8a8a8a; font-size: 11px; margin: 6px 0 0 100px; }
