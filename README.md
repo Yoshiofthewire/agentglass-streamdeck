@@ -100,8 +100,9 @@ Restart OpenDeck; the **agentglass** category appears in the action list.
 
 > **OpenDeck launch note.** The bundle is a Node ESM file with a
 > `#!/usr/bin/env node` shebang and the executable bit, launched via the
-> manifest's `CodePath`. If OpenDeck on your build doesn't run it directly,
-> point `CodePath` at a `node` invocation per OpenDeck's plugin docs.
+> manifest's `CodePath`. That runs as-is on OpenDeck on Linux (see Status). If
+> your build doesn't run it directly, point `CodePath` at a `node` invocation
+> per OpenDeck's plugin docs.
 
 ## Configure
 
@@ -156,9 +157,14 @@ while all of them worked.
 - Verified end-to-end against a stub OpenDeck and a stub agentglass: all 27 keys
   register and paint, navigation and chat commands reach `/control`, and
   scrub-then-approve decides the right gate.
-- **Not yet verified on real hardware.** The remaining unknowns are how your
-  OpenDeck build launches `CodePath` and how the encoder `setFeedback` layout
-  looks on a physical Stream Deck +.
+- **Run on real hardware** — a FIFINE Ampligame D6 (15 keys, 3×5, no encoders)
+  under OpenDeck on Linux, with no changes needed. `CodePath` launched the
+  bundle directly, and the runtime-rendered SVG keys draw on a real panel. That
+  device is also the dial-less case this plugin was shaped around, so the key
+  equivalents for the dials are exercised rather than merely asserted by a test.
+- **The three encoder actions are still untested on hardware** — the D6 has no
+  dials, so nothing has yet driven `setFeedback` or the `$B1` touch-strip layout
+  on a physical Stream Deck +. The keypad path does not depend on them.
 
 ## License
 
