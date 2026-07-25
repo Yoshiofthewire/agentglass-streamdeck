@@ -27,6 +27,8 @@ export function planRequest(action: Action, state: GateState): Request | null {
       return { method: "POST", path: "/control", body: { cmd: "theme", dir: action.dir } };
     case "zoom":
       return { method: "POST", path: "/control", body: { cmd: "zoom", dir: action.dir } };
+    case "chat":
+      return { method: "POST", path: "/control", body: { cmd: "chat", do: action.do } };
     case "approve":
     case "deny": {
       const gate = selectedGate(state);

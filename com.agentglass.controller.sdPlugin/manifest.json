@@ -2,9 +2,9 @@
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
   "Name": "agentglass",
   "UUID": "com.agentglass.controller",
-  "Version": "0.2.0",
+  "Version": "0.3.0",
   "Author": "Yoshiofthewire",
-  "Description": "Drive the agentglass cockpit — switch views, approve tool calls, and watch the fleet from a Stream Deck +.",
+  "Description": "Drive the agentglass cockpit from a Stream Deck — every view, panel and control on its own labelled key, with live approval and usage monitors.",
   "Category": "agentglass",
   "CategoryIcon": "imgs/plugin/category",
   "Icon": "imgs/plugin/icon",
@@ -18,55 +18,483 @@
     "MinimumVersion": "6.5"
   },
   "OS": [
-    { "Platform": "mac", "MinimumVersion": "12" },
-    { "Platform": "windows", "MinimumVersion": "10" }
+    {
+      "Platform": "mac",
+      "MinimumVersion": "12"
+    },
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
   ],
   "Actions": [
     {
-      "Name": "View",
-      "UUID": "com.agentglass.controller.view",
-      "Icon": "imgs/actions/view/icon",
-      "Tooltip": "Open a workspace view (git, diff, pr, docker, term, chat).",
-      "Controllers": ["Keypad"],
-      "PropertyInspectorPath": "ui/view.html",
-      "States": [{ "Image": "imgs/actions/view/icon", "TitleAlignment": "middle" }]
-    },
-    {
-      "Name": "Command",
-      "UUID": "com.agentglass.controller.command",
-      "Icon": "imgs/actions/command/icon",
-      "Tooltip": "Run a control command: workspace, home, or open a panel.",
-      "Controllers": ["Keypad"],
-      "PropertyInspectorPath": "ui/command.html",
-      "States": [{ "Image": "imgs/actions/command/icon", "TitleAlignment": "middle" }]
-    },
-    {
-      "Name": "Approve",
-      "UUID": "com.agentglass.controller.approve",
-      "Icon": "imgs/actions/approve/idle",
-      "Tooltip": "Approve the selected held tool call. Lights up with the count.",
-      "Controllers": ["Keypad"],
+      "Name": "View · Git",
+      "UUID": "com.agentglass.controller.view.git",
+      "Icon": "imgs/actions/view.git/icon",
+      "Tooltip": "Open the git view — status, branches, commits.",
+      "Controllers": [
+        "Keypad"
+      ],
       "PropertyInspectorPath": "ui/settings.html",
       "States": [
-        { "Image": "imgs/actions/approve/idle", "TitleAlignment": "middle" },
-        { "Image": "imgs/actions/approve/pending", "TitleAlignment": "middle" }
+        {
+          "Image": "imgs/actions/view.git/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
       ]
     },
     {
-      "Name": "Deny",
+      "Name": "View · Diff",
+      "UUID": "com.agentglass.controller.view.diff",
+      "Icon": "imgs/actions/view.diff/icon",
+      "Tooltip": "Open the working-tree diff.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/view.diff/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "View · PRs",
+      "UUID": "com.agentglass.controller.view.pr",
+      "Icon": "imgs/actions/view.pr/icon",
+      "Tooltip": "Open the pull request view.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/view.pr/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "View · Docker",
+      "UUID": "com.agentglass.controller.view.docker",
+      "Icon": "imgs/actions/view.docker/icon",
+      "Tooltip": "Open the docker view.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/view.docker/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Launch · Terminal",
+      "UUID": "com.agentglass.controller.view.term",
+      "Icon": "imgs/actions/view.term/icon",
+      "Tooltip": "Launch the cockpit terminal — a real shell in the workspace.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/view.term/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "View · Chat",
+      "UUID": "com.agentglass.controller.view.chat",
+      "Icon": "imgs/actions/view.chat/icon",
+      "Tooltip": "Open the chat view.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/view.chat/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Panel · Stats",
+      "UUID": "com.agentglass.controller.open.stats",
+      "Icon": "imgs/actions/open.stats/icon",
+      "Tooltip": "Open the stats panel.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/open.stats/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Panel · Skills",
+      "UUID": "com.agentglass.controller.open.skills",
+      "Icon": "imgs/actions/open.skills/icon",
+      "Tooltip": "Open the skills catalogue.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/open.skills/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Panel · Search",
+      "UUID": "com.agentglass.controller.open.search",
+      "Icon": "imgs/actions/open.search/icon",
+      "Tooltip": "Open search.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/open.search/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Panel · Help",
+      "UUID": "com.agentglass.controller.open.help",
+      "Icon": "imgs/actions/open.help/icon",
+      "Tooltip": "Open the keyboard help.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/open.help/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Panel · Palette",
+      "UUID": "com.agentglass.controller.open.palette",
+      "Icon": "imgs/actions/open.palette/icon",
+      "Tooltip": "Open the command palette.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/open.palette/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Nav · Workspace",
+      "UUID": "com.agentglass.controller.workspace",
+      "Icon": "imgs/actions/workspace/icon",
+      "Tooltip": "Toggle the workspace overlay.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/workspace/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Nav · Home",
+      "UUID": "com.agentglass.controller.home",
+      "Icon": "imgs/actions/home/icon",
+      "Tooltip": "Close whatever is open — the same peel as Escape.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/home/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Chat · New session",
+      "UUID": "com.agentglass.controller.chat.new",
+      "Icon": "imgs/actions/chat.new/icon",
+      "Tooltip": "Start a new chat session in the cockpit.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/chat.new/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Chat · Compact",
+      "UUID": "com.agentglass.controller.chat.compact",
+      "Icon": "imgs/actions/chat.compact/icon",
+      "Tooltip": "Compact the open chat session.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/chat.compact/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Look · Theme next",
+      "UUID": "com.agentglass.controller.theme.next",
+      "Icon": "imgs/actions/theme.next/icon",
+      "Tooltip": "Step forward through agentglass's themes.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/theme.next/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Look · Theme prev",
+      "UUID": "com.agentglass.controller.theme.prev",
+      "Icon": "imgs/actions/theme.prev/icon",
+      "Tooltip": "Step back through agentglass's themes.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/theme.prev/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Look · Zoom in",
+      "UUID": "com.agentglass.controller.zoom.in",
+      "Icon": "imgs/actions/zoom.in/icon",
+      "Tooltip": "Zoom the cockpit in.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/zoom.in/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Look · Zoom out",
+      "UUID": "com.agentglass.controller.zoom.out",
+      "Icon": "imgs/actions/zoom.out/icon",
+      "Tooltip": "Zoom the cockpit out.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/zoom.out/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Look · Zoom reset",
+      "UUID": "com.agentglass.controller.zoom.reset",
+      "Icon": "imgs/actions/zoom.reset/icon",
+      "Tooltip": "Reset the cockpit zoom.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/zoom.reset/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Gate · Approve",
+      "UUID": "com.agentglass.controller.approve",
+      "Icon": "imgs/actions/approve/icon",
+      "Tooltip": "Approve the selected held tool call. Shows the pending count.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/approve/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Gate · Deny",
       "UUID": "com.agentglass.controller.deny",
       "Icon": "imgs/actions/deny/icon",
       "Tooltip": "Deny the selected held tool call.",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "PropertyInspectorPath": "ui/settings.html",
-      "States": [{ "Image": "imgs/actions/deny/icon", "TitleAlignment": "middle" }]
+      "States": [
+        {
+          "Image": "imgs/actions/deny/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
     },
     {
-      "Name": "Gate dial",
-      "UUID": "com.agentglass.controller.gate",
-      "Icon": "imgs/actions/gate/icon",
+      "Name": "Gate · Next",
+      "UUID": "com.agentglass.controller.gate.next",
+      "Icon": "imgs/actions/gate.next/icon",
+      "Tooltip": "Select the next held tool call — the dial's job, without a dial.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/gate.next/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Gate · Previous",
+      "UUID": "com.agentglass.controller.gate.prev",
+      "Icon": "imgs/actions/gate.prev/icon",
+      "Tooltip": "Select the previous held tool call.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/gate.prev/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Monitor · 5-hour usage",
+      "UUID": "com.agentglass.controller.usage.5h",
+      "Icon": "imgs/actions/usage.5h/icon",
+      "Tooltip": "Anthropic 5-hour rate-limit window: level, trend, and time to reset.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/usage.5h/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Monitor · Weekly usage",
+      "UUID": "com.agentglass.controller.usage.week",
+      "Icon": "imgs/actions/usage.week/icon",
+      "Tooltip": "Anthropic 7-day rate-limit window: level, trend, and time to reset.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/usage.week/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Monitor · Link",
+      "UUID": "com.agentglass.controller.link",
+      "Icon": "imgs/actions/link/icon",
+      "Tooltip": "Is agentglass reachable, and is anything waiting on you.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/link/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Dial · Approvals",
+      "UUID": "com.agentglass.controller.dial.gate",
+      "Icon": "imgs/actions/dial.gate/icon",
       "Tooltip": "Turn to scrub the approval queue, press to approve.",
-      "Controllers": ["Encoder"],
+      "Controllers": [
+        "Encoder"
+      ],
       "PropertyInspectorPath": "ui/settings.html",
       "Encoder": {
         "layout": "$B1",
@@ -76,33 +504,54 @@
           "Touch": "Approve"
         }
       },
-      "States": [{ "Image": "imgs/actions/gate/icon" }]
+      "States": [
+        {
+          "Image": "imgs/actions/dial.gate/icon"
+        }
+      ]
     },
     {
-      "Name": "Theme dial",
-      "UUID": "com.agentglass.controller.theme",
-      "Icon": "imgs/actions/theme/icon",
+      "Name": "Dial · Theme",
+      "UUID": "com.agentglass.controller.dial.theme",
+      "Icon": "imgs/actions/dial.theme/icon",
       "Tooltip": "Turn to cycle the agentglass theme.",
-      "Controllers": ["Encoder"],
+      "Controllers": [
+        "Encoder"
+      ],
       "PropertyInspectorPath": "ui/settings.html",
       "Encoder": {
         "layout": "$B1",
-        "TriggerDescription": { "Rotate": "Cycle theme" }
+        "TriggerDescription": {
+          "Rotate": "Cycle theme"
+        }
       },
-      "States": [{ "Image": "imgs/actions/theme/icon" }]
+      "States": [
+        {
+          "Image": "imgs/actions/dial.theme/icon"
+        }
+      ]
     },
     {
-      "Name": "Zoom dial",
-      "UUID": "com.agentglass.controller.zoom",
-      "Icon": "imgs/actions/zoom/icon",
-      "Tooltip": "Turn to zoom the UI, press to reset.",
-      "Controllers": ["Encoder"],
+      "Name": "Dial · Zoom",
+      "UUID": "com.agentglass.controller.dial.zoom",
+      "Icon": "imgs/actions/dial.zoom/icon",
+      "Tooltip": "Turn to zoom the cockpit, press to reset.",
+      "Controllers": [
+        "Encoder"
+      ],
       "PropertyInspectorPath": "ui/settings.html",
       "Encoder": {
         "layout": "$B1",
-        "TriggerDescription": { "Rotate": "Zoom", "Push": "Reset zoom" }
+        "TriggerDescription": {
+          "Rotate": "Zoom",
+          "Push": "Reset zoom"
+        }
       },
-      "States": [{ "Image": "imgs/actions/zoom/icon" }]
+      "States": [
+        {
+          "Image": "imgs/actions/dial.zoom/icon"
+        }
+      ]
     }
   ]
 }

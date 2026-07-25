@@ -1,12 +1,13 @@
 {
   "name": "agentglass-streamdeck",
-  "version": "0.2.0",
-  "description": "OpenDeck / Stream Deck + plugin to drive the agentglass cockpit — switch views, approve tool calls, watch the fleet.",
+  "version": "0.3.0",
+  "description": "OpenDeck / Stream Deck plugin to drive the agentglass cockpit — every control on its own labelled key, with live approval and usage monitors.",
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "build": "node scripts/make-icons.mjs && rollup -c && chmod +x com.agentglass.controller.sdPlugin/bin/plugin.js",
+    "build": "npm run manifest && npm run icons && rollup -c && chmod +x com.agentglass.controller.sdPlugin/bin/plugin.js",
     "icons": "node scripts/make-icons.mjs",
+    "manifest": "node scripts/make-manifest.mjs",
     "watch": "rollup -c -w",
     "test": "node --test \"tests/**/*.test.ts\"",
     "typecheck": "tsc --noEmit"

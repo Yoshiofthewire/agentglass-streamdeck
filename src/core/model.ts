@@ -12,6 +12,11 @@ export type ViewId = (typeof VIEW_IDS)[number];
 export const OPEN_WHATS = ["stats", "skills", "search", "help", "palette"] as const;
 export type OpenWhat = (typeof OPEN_WHATS)[number];
 
+/** Drive the cockpit's chat view. Needs agentglass with the `chat` control
+ *  command; older servers answer 400 and the key simply does nothing. */
+export const CHAT_DOS = ["new", "compact"] as const;
+export type ChatDo = (typeof CHAT_DOS)[number];
+
 export type Action =
   | { kind: "view"; view: ViewId }
   | { kind: "workspace" }
@@ -19,6 +24,7 @@ export type Action =
   | { kind: "open"; what: OpenWhat }
   | { kind: "theme"; dir: 1 | -1 }
   | { kind: "zoom"; dir: 1 | -1 | 0 }
+  | { kind: "chat"; do: ChatDo }
   | { kind: "approve" }
   | { kind: "deny" };
 

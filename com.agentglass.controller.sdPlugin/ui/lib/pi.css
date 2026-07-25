@@ -1,7 +1,98 @@
-body { font-family: -apple-system, system-ui, "Segoe UI", sans-serif; font-size: 13px; color: #dcdcdc; background: #2d2d2d; margin: 0; padding: 10px; }
-h3 { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #8a8a8a; margin: 14px 0 4px 8px; }
-.row { display: flex; align-items: center; margin: 7px 0; gap: 8px; }
-.row label { flex: 0 0 92px; text-align: right; color: #9a9a9a; }
-.row input, .row select { flex: 1; background: #3d3d3d; border: 1px solid #555; color: #eee; border-radius: 4px; padding: 5px 6px; outline: none; }
-.row input:focus, .row select:focus { border-color: #7c6cf0; }
-.hint { color: #8a8a8a; font-size: 11px; margin: 6px 0 0 100px; }
+/* The property inspector, in the cockpit's Midnight Purple.
+ *
+ * The palette is copied from src/render/theme.ts, which copies it from
+ * agentglass's own themes.ts. There is no build step reaching into this file —
+ * a property inspector is a plain page the host loads off disk — so the values
+ * are literal here and the comment is the link between them. */
+
+:root {
+  --bg: #0f0a1a;
+  --bg2: #1a1333;
+  --bg3: #2d1b4e;
+  --text: #f3e8ff;
+  --text-dim: #c084fc;
+  --border: #6d28d9;
+  --primary: #a78bfa;
+}
+
+body {
+  font-family: -apple-system, system-ui, "Segoe UI", sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  background:
+    linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%),
+    var(--bg);
+  margin: 0;
+  padding: 14px 12px 18px;
+  /* The same faint grid the keys are drawn on. */
+  background-image:
+    linear-gradient(rgba(45, 27, 78, 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 27, 78, 0.5) 1px, transparent 1px),
+    linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+  background-size: 18px 18px, 18px 18px, 100% 100%;
+}
+
+h3 {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 4px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(109, 40, 217, 0.5);
+}
+
+/* A HUD bracket on the panel, matching the corners on every key. */
+h3::before {
+  content: "";
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 7px;
+  border-left: 2px solid var(--primary);
+  border-top: 2px solid var(--primary);
+  vertical-align: 1px;
+}
+
+.row { display: flex; align-items: center; margin: 9px 0; gap: 9px; }
+.row label {
+  flex: 0 0 74px;
+  text-align: right;
+  color: var(--text-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.row input {
+  flex: 1;
+  background: rgba(15, 10, 26, 0.75);
+  border: 1px solid rgba(109, 40, 217, 0.55);
+  color: var(--text);
+  border-radius: 5px;
+  padding: 6px 8px;
+  outline: none;
+  font-family: ui-monospace, "DejaVu Sans Mono", monospace;
+  font-size: 12px;
+  transition: border-color 120ms, box-shadow 120ms;
+}
+.row input::placeholder { color: rgba(192, 132, 252, 0.45); }
+.row input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.16);
+}
+
+.hint {
+  color: var(--text-dim);
+  opacity: 0.75;
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 10px 0 0 83px;
+}
+.hint code {
+  font-family: ui-monospace, "DejaVu Sans Mono", monospace;
+  background: rgba(45, 27, 78, 0.7);
+  border-radius: 3px;
+  padding: 1px 4px;
+}

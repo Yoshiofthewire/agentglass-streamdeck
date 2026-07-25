@@ -5,10 +5,13 @@
     <link rel="stylesheet" href="lib/pi.css" />
   </head>
   <body>
-    <h3>agentglass server</h3>
+    <h3>agentglass link</h3>
     <div class="row"><label for="server">URL</label><input id="server" placeholder="http://127.0.0.1:4000" /></div>
     <div class="row"><label for="token">Token</label><input id="token" type="password" placeholder="only if AGENTGLASS_TOKEN is set" /></div>
-    <p class="hint">Shared by every agentglass action.</p>
+    <p class="hint">
+      Shared by every agentglass key — set it once, anywhere. Each key is a
+      fixed command, so there is nothing else to configure.
+    </p>
 
     <script src="lib/pi.js"></script>
     <script>

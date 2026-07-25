@@ -9,6 +9,7 @@
  */
 
 import type { Gate } from "./core/state.ts";
+import type { UsagePayload } from "./core/usage.ts";
 
 export function buildHeaders(token?: string): Record<string, string> {
   const h: Record<string, string> = { "content-type": "application/json" };
@@ -54,9 +55,30 @@ export class AgentglassClient {
     }
   }
 
-  async pendingGates(): Promise<Gate[]> {
+  /**
+   * The approval queue, or null if the server could not be reached.
+   *
+   * The distinction matters: an empty array means "nothing is waiting on you"
+   * and null means "we don't know". Collapsing both to `[]` is what would let
+   * a dead server render as a calm, idle deck.
+   */
+  async pendingGates(): Promise<Gate[] | null> {
     const data = await this.request("GET", "/gate/pending");
-    return data && Array.isArray(data.gates) ? (data.gates as Gate[]) : [];
+    if (!data) return null;
+    return Array.isArray(data.gates) ? (data.gates as Gate[]) : [];
+  }
+
+  /**
+   * The Anthropic plan windows, or null if this server can't tell us.
+   *
+   * The server caches these for five minutes and backs off hard on a 429 — the
+   * upstream endpoint is rate-limited and shared with Claude Code itself — so
+   * polling it more often than that costs nothing and gains nothing. The deck
+   * samples on its own slower schedule regardless; see core/usage.ts.
+   */
+  async usage(): Promise<UsagePayload | null> {
+    const data = await this.request("GET", "/usage");
+    return data && typeof data === "object" ? (data as UsagePayload) : null;
   }
 
   /**

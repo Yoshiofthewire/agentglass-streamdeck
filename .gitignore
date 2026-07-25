@@ -10,3 +10,4 @@ com.agentglass.controller.sdPlugin/imgs/
 # stray python bytecode from the previous (Python) implementation
 __pycache__/
 *.pyc
+*.zip

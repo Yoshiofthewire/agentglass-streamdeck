@@ -2,100 +2,163 @@
 
 An **[OpenDeck](https://github.com/nekename/OpenDeck)** (and Elgato Stream Deck)
 plugin that drives the [agentglass](https://github.com/SirAllap/agentglass)
-cockpit from a **Stream Deck +** — switch workspace views, approve or deny held
-tool calls, and watch the fleet, all mapped to whatever keys and dials you like.
+cockpit from a Stream Deck — switch workspace views, approve or deny held tool
+calls, drive the chat, and watch your plan usage, all on labelled keys.
 
-Unlike a fixed daemon, this is *programmable*: OpenDeck owns the device and gives
-you a GUI, so you drag agentglass actions onto keys and dials and configure each
-one. The plugin talks to a normal agentglass on `127.0.0.1:4000` — navigation
-through `POST /control`, approvals through `POST /gate/decide`, and it watches
-the live `/stream` socket so a pending approval lights the key the moment it lands.
+Every control is its own action. You drag **View · Git** onto a key and it *is*
+the git key — no inspector, no dropdown, no configuration. The only setting in
+the whole plugin is where agentglass lives.
 
-> Needs agentglass with the control bridge (`POST /control`) — SirAllap/agentglass
-> PR #237 — for the navigation actions. Approve/deny and the live count work
-> against any version.
+Keys are drawn at runtime in agentglass's own **Midnight Purple** palette, so
+the deck and the cockpit read as one instrument: HUD brackets, a hairline grid,
+a glyph and a caption on every key, and live graphs on the monitors.
+
+> Needs agentglass with the control bridge (`POST /control`) for navigation, and
+> its `chat` control command for **Chat · New session** / **Chat · Compact**.
+> Approve/deny, the link monitor and the usage meters work against any version.
 
 ## Actions
 
-Drop these onto keys and dials in OpenDeck; each is configured in its inspector.
+### Views — open a workspace pane
 
-| Action | Controller | What it does |
-|---|---|---|
-| **View** | key | Opens a workspace view — pick `git · diff · pr · docker · term · chat` in the inspector. |
-| **Command** | key | A control command — toggle workspace, home/close, or open stats/skills/search/help/palette. |
-| **Approve** | key | Approves the selected held tool call; the key lights red and shows the pending count. |
-| **Deny** | key | Denies the selected held tool call. |
-| **Gate dial** | dial | Turn to scrub the approval queue, press (or tap) to approve; the strip names the selected tool. |
-| **Theme dial** | dial | Turn to cycle agentglass's themes. |
-| **Zoom dial** | dial | Turn to zoom the UI, press to reset. |
+| Key | What it does |
+| --- | --- |
+| **View · Git** | Status, branches, commits. |
+| **View · Diff** | The working-tree diff. |
+| **View · PRs** | Pull requests. |
+| **View · Docker** | The docker panel. |
+| **Launch · Terminal** | The cockpit terminal — a real shell in the workspace. |
+| **View · Chat** | The chat panel. |
 
-The **agentglass URL + token** are shared (global) settings — set them once in
-any action's inspector.
+### Panels
+
+**Panel · Stats**, **· Skills**, **· Search**, **· Help**, **· Palette** — each
+opens its overlay.
+
+### Navigation & chat
+
+| Key | What it does |
+| --- | --- |
+| **Nav · Workspace** | Toggle the workspace overlay. |
+| **Nav · Home** | Close whatever is open — the same peel as Escape. |
+| **Chat · New session** | Start a new chat in the cockpit. |
+| **Chat · Compact** | Send `/compact` to the open session. |
+
+### Appearance
+
+**Look · Theme next / prev**, **Look · Zoom in / out / reset**. The two theme
+keys carry a direction chevron, because two keys that differ only in their
+caption are two keys you press wrong.
+
+### Approvals
+
+| Key | What it does |
+| --- | --- |
+| **Gate · Approve** | Approves the selected held call. Goes amber and carries the pending count. |
+| **Gate · Deny** | Denies it. Greys out when there is nothing to decide. |
+| **Gate · Next / Previous** | Scrub the queue — the dial's job, without a dial. |
+
+### Monitors
+
+| Key | What it shows |
+| --- | --- |
+| **Monitor · 5-hour usage** | The Anthropic 5-hour window: level, an hour of trend, a segmented bar, and time to reset. |
+| **Monitor · Weekly usage** | The same for the 7-day window. |
+| **Monitor · Link** | Whether agentglass is reachable and whether anything is waiting. |
+
+The meters sample `GET /usage` once a minute and keep the history in memory, so
+the graph is a rolling hour. Pressing a meter forces a re-read. A failed sample
+is skipped rather than charted as zero — a gap is not a drop in usage.
+
+### Dials (Stream Deck +)
+
+**Dial · Approvals** (turn to scrub, press to approve), **Dial · Theme**,
+**Dial · Zoom** (press to reset).
+
+**Every dial is a convenience, not a capability.** Each one's job is also on a
+key, and a test enforces that — so a Stream Deck Mini, MK.2, XL or any OpenDeck
+device without encoders loses nothing but the scrubbing feel.
 
 ## Build & install
 
-Needs Node ≥ 20 (for building) and OpenDeck installed with a Stream Deck +.
+Needs Node ≥ 22 (the build imports the TypeScript catalog directly) and OpenDeck.
 
 ```bash
 npm install
-npm run build          # generates icons + bundles com.agentglass.controller.sdPlugin/bin/plugin.js
+npm run build     # manifest + icons + bundle
 ```
 
-Then install the built `com.agentglass.controller.sdPlugin/` folder into OpenDeck
-— either through OpenDeck's **Install plugin from folder/file**, or by linking it
-into OpenDeck's plugins directory (Linux: typically `~/.config/opendeck/plugins/`):
+Then install `com.agentglass.controller.sdPlugin/` into OpenDeck — either via
+**Install plugin from folder/file**, or by linking it in (Linux: typically
+`~/.config/opendeck/plugins/`):
 
 ```bash
 ln -s "$PWD/com.agentglass.controller.sdPlugin" ~/.config/opendeck/plugins/
 ```
 
-Restart OpenDeck; the **agentglass** category appears in the action list. Add
-actions, set the server URL in an inspector, and you're driving the cockpit.
+Restart OpenDeck; the **agentglass** category appears in the action list.
 
 > **OpenDeck launch note.** The bundle is a Node ESM file with a
 > `#!/usr/bin/env node` shebang and the executable bit, launched via the
 > manifest's `CodePath`. If OpenDeck on your build doesn't run it directly,
-> point `CodePath` at a `node` invocation per OpenDeck's plugin docs — this is
-> the one integration detail that varies by OpenDeck version.
+> point `CodePath` at a `node` invocation per OpenDeck's plugin docs.
 
 ## Configure
 
-Open any action's inspector and set **agentglass URL** (default
-`http://127.0.0.1:4000`) and, only if the server runs with `AGENTGLASS_TOKEN`, a
-**token**. Both are stored as global settings and used by every action.
+Open any key's inspector and set **URL** (default `http://127.0.0.1:4000`) and,
+only if the server runs with `AGENTGLASS_TOKEN`, a **token**. Both are global —
+set them once and every key uses them.
 
 ## Develop
 
 ```bash
-npm test         # node --test — pure logic (state, dispatch, client, service)
+npm test         # node --test — pure logic and the whole render layer
 npm run typecheck
-npm run build    # icons + rollup bundle
+npm run manifest # regenerate the manifest from the catalog
+npm run build    # manifest + icons + rollup bundle
 ```
 
-The code splits in two:
+### How it fits together
 
-- **`src/core` + `src/client.ts` + `src/service.ts`** — pure logic, no SDK:
-  the approval-queue state and selection, the `Action`→request table, the
-  fetch/WebSocket client, and the service that ties them together. Covered by
-  the test suite (`node --test`), which runs the TypeScript directly.
-- **`src/actions/*` + `src/plugin.ts`** — the Stream Deck action classes and the
-  entry point, bundled by rollup into the `.sdPlugin`. These use the
-  `@elgato/streamdeck` runtime and are the layer that meets the hardware.
+```text
+key ─▶ CatalogKeyAction ─▶ Action ─▶ service ─▶ dispatch ─▶ client ─▶ agentglass
+         │                              ▲                                 │
+         └── hud.ts (SVG) ◀── state ────┴──── /gate/pending + /usage ◀─────┘
+```
 
-```
-key/dial ─▶ action ─▶ Action ─▶ service ─▶ dispatch ─▶ AgentglassClient ─▶ agentglass
-                                    ▲                                          │
-                                    └──────── /gate/pending + /stream ◀────────┘
-```
+- **`src/core/catalog.ts`** is the single source of truth. It lists every
+  button; `scripts/make-manifest.mjs` builds the manifest from it,
+  `scripts/make-icons.mjs` builds the action-list icons from it, and
+  `src/plugin.ts` registers one action object per row. There is no second list
+  to keep in step, and a test fails the build if the committed manifest drifts.
+- **`src/render/`** draws the keys. Pure `(state) => SVG`, so the visual layer
+  is unit-tested without a device — which matters, because a malformed SVG
+  reaches hardware as a blank key with no error logged anywhere. The tests check
+  every glyph and every key state for well-formedness.
+- **`src/core` + `src/client.ts` + `src/service.ts`** — the queue state, the
+  `Action`→request table, the fetch/WebSocket client, and the service tying them
+  together. No SDK imports, so `node --test` runs them directly.
+- **`src/actions/`** — the thin layer that meets the hardware.
+
+### A note on "connected"
+
+The deck's liveness signal is whether the **REST poll** is answering, not
+whether the `/stream` socket is up. agentglass gates that socket harder than the
+rest of its surface — it refuses a caller with no `Origin` header unless the
+server is bound loopback-only, which is exactly this plugin against a LAN-bound
+cockpit. A deck that trusted the socket would paint every key cold and dead
+while all of them worked.
 
 ## Status
 
-- The core (25 tests) and the build are green; the plugin bundles and loads.
-- **Not yet verified on real hardware / a running OpenDeck** — the action wiring
-  is written against the documented `@elgato/streamdeck` 2.x API and OpenDeck's
-  plugin protocol. Running it on the deck is the remaining step; the encoder
-  `setFeedback` layout and the `CodePath` launch are the most likely spots to
-  need a small tweak.
+- 60 tests green: state, dispatch, client, service, the usage model, the render
+  layer, and catalog/manifest consistency.
+- Verified end-to-end against a stub OpenDeck and a stub agentglass: all 27 keys
+  register and paint, navigation and chat commands reach `/control`, and
+  scrub-then-approve decides the right gate.
+- **Not yet verified on real hardware.** The remaining unknowns are how your
+  OpenDeck build launches `CodePath` and how the encoder `setFeedback` layout
+  looks on a physical Stream Deck +.
 
 ## License
 
