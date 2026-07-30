@@ -110,6 +110,27 @@ export const GLYPHS = {
   /** Signal strength — the link to agentglass. */
   link: (c) =>
     `<path ${S(c)} d="M3.5 10a12 12 0 0 1 17 0M6.8 13.2a7.4 7.4 0 0 1 10.4 0"/>${dot(c, 12, 17.5, 2.2)}`,
+
+  // --- this machine -----------------------------------------------------------
+  // Four instruments that have to be told apart in peripheral vision, so each
+  // one is a different silhouette rather than the same rectangle with different
+  // contents: a pinned die, a card with a fan, a stick of memory, a cell.
+  /** A processor: die, core, and pins on all four sides. */
+  cpu: (c) =>
+    `<path ${S(c)} d="M5.5 5.5h13v13h-13z"/><path ${S(c, 1.5)} d="M9.5 9.5h5v5h-5z"/>` +
+    `<path ${S(c, 1.5)} d="M9 5.5V2.5M15 5.5V2.5M9 21.5v-3M15 21.5v-3M5.5 9H2.5M5.5 15H2.5M21.5 9h-3M21.5 15h-3"/>`,
+  /** A graphics card: board, blower, and the fins along its edge. */
+  gpu: (c) =>
+    `<path ${S(c)} d="M2.5 6h19v12h-19z"/><path ${S(c, 1.5)} d="M9 8.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4"/>` +
+    `${dot(c, 9, 12, 1.1)}<path ${S(c, 1.5)} d="M15 9h4M15 12h4M15 15h4"/>`,
+  /** A memory module: board, two chips, contacts. */
+  ram: (c) =>
+    `<path ${S(c)} d="M2.5 7h19v8h-19z"/><path ${S(c, 1.5)} d="M6 9.5h4v3H6zM14 9.5h4v3h-4z"/>` +
+    `<path ${S(c, 1.5)} d="M5.5 15v2.5M9 15v2.5M12.5 15v2.5M16 15v2.5M19.5 15v2.5"/>`,
+  /** A cell with its terminal, part-filled — the level itself is on the key. */
+  battery: (c) =>
+    `<path ${S(c)} d="M2.5 7.5h16v9h-16zM21.5 10.5v3"/>` +
+    `<rect x="5" y="10" width="6.5" height="4" rx="1" fill="${c}"/>`,
 } satisfies Record<string, Glyph>;
 
 export type GlyphId = keyof typeof GLYPHS;

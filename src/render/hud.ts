@@ -151,19 +151,35 @@ export function keySvg(art: KeyArt): string {
 
 // --- instruments -----------------------------------------------------------
 
+/**
+ * Which end of the scale is the bad one.
+ *
+ * "load" is a tank filling up — usage, CPU, memory. "charge" is a tank draining
+ * — the battery, and nothing else so far. They are two tones rather than two
+ * palettes: the colours mean the same thing on every key of the deck, so a
+ * glance still reads amber as "getting tight" wherever it appears.
+ */
+export type MeterTone = "load" | "charge";
+
 export type MeterArt = {
   label: string;
   /** 0..100, or null when the reading is unavailable. */
   percent: number | null;
   /** Oldest → newest samples, 0..100. Drawn as the area graph. */
   history: number[];
-  /** Small top-right note — usually the time until the window resets. */
+  /** Small top-right note — the time until a window resets, the size of a machine. */
   note?: string;
+  tone?: MeterTone;
   offline?: boolean;
 };
 
 /** Utilisation colour: violet until it matters, then amber, then rose. */
-export function meterColor(percent: number): string {
+export function meterColor(percent: number, tone: MeterTone = "load"): string {
+  if (tone === "charge") {
+    if (percent <= 10) return ACCENTS.stop;
+    if (percent <= 25) return ACCENTS.alert;
+    return ACCENTS.meter;
+  }
   if (percent >= 90) return ACCENTS.stop;
   if (percent >= 70) return ACCENTS.alert;
   return ACCENTS.meter;
@@ -225,7 +241,7 @@ function segments(percent: number, x: number, y: number, w: number, color: strin
 export function meterSvg(art: MeterArt): string {
   const dim = art.offline === true || art.percent === null;
   const pct = art.percent ?? 0;
-  const color = dim ? ACCENTS.dead : meterColor(pct);
+  const color = dim ? ACCENTS.dead : meterColor(pct, art.tone);
   const reading = art.percent === null ? "—" : `${Math.round(pct)}%`;
   return svgDoc(
     plate(color, dim) +

@@ -2,7 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { DIALS, KEYS, PLUGIN_UUID, uuidOf } from "../src/core/catalog.ts";
+import { DIALS, KEYS, PLUGIN_UUID, isMetric, uuidOf } from "../src/core/catalog.ts";
+import { METRICS } from "../src/core/system.ts";
 import { planRequest } from "../src/core/dispatch.ts";
 import { emptyState } from "../src/core/state.ts";
 
@@ -85,9 +86,26 @@ test("the approve and deny keys target the gate endpoint", () => {
 });
 
 test("the keys that only read state carry no action", () => {
-  for (const def of KEYS.filter((d) => ["usage-5h", "usage-week", "link", "gate-next", "gate-prev"].includes(d.behaviour))) {
+  const reading = ["usage-5h", "usage-week", "link", "gate-next", "gate-prev", "cpu", "gpu", "ram", "battery"];
+  for (const def of KEYS.filter((d) => reading.includes(d.behaviour))) {
     assert.equal(def.action, undefined, `${def.id} should not dispatch anything`);
   }
+});
+
+/**
+ * The machine meters are the only keys that are not about agentglass, and the
+ * thing that keeps them wired to the right monitor is that their behaviour *is*
+ * the metric id. Renaming one without the other would compile and then draw a
+ * key that never updates.
+ */
+test("every machine meter's behaviour names a metric the monitor knows", () => {
+  const meters = KEYS.filter((d) => isMetric(d.behaviour));
+  assert.deepEqual(
+    meters.map((d) => d.behaviour).sort(),
+    [...METRICS].sort(),
+    "every metric gets a key, and no key claims a metric that doesn't exist",
+  );
+  for (const def of meters) assert.ok(def.id.startsWith("sys."), `${def.id} should be namespaced under sys.`);
 });
 
 /** Everything a dial does has to be reachable without one. */

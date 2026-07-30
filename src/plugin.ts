@@ -12,6 +12,7 @@
 
 import streamDeck from "@elgato/streamdeck";
 
+import { monitor } from "./monitor.ts";
 import { service } from "./service.ts";
 import { KEYS } from "./core/catalog.ts";
 import { CatalogKeyAction } from "./actions/keys.ts";
@@ -38,3 +39,6 @@ streamDeck.settings.onDidReceiveGlobalSettings(() => void applySettings());
 await streamDeck.connect();
 await applySettings();
 service.start();
+// The machine meters need no settings and no server — they start regardless,
+// and keep running when the cockpit doesn't.
+monitor.start();

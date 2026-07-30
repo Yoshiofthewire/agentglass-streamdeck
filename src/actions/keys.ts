@@ -15,8 +15,10 @@
 
 import { SingletonAction, type KeyDownEvent, type WillAppearEvent } from "@elgato/streamdeck";
 
+import { monitor } from "../monitor.ts";
 import { service } from "../service.ts";
-import { type KeyDef, uuidOf } from "../core/catalog.ts";
+import { type KeyDef, isMetric, uuidOf } from "../core/catalog.ts";
+import type { MetricId } from "../core/system.ts";
 import { resetNote, type WindowId } from "../core/usage.ts";
 import { ACCENTS } from "../render/theme.ts";
 import { keyImage, linkImage, meterImage } from "../render/hud.ts";
@@ -36,6 +38,9 @@ export class CatalogKeyAction extends SingletonAction {
     super();
     (this as { manifestId: string | undefined }).manifestId = uuidOf(def.id);
     service.subscribe(() => void this.paint());
+    // Only the machine meters follow the machine's own clock. Every other key
+    // would repaint to an identical image on every tick of it.
+    if (isMetric(def.behaviour)) monitor.subscribe(() => void this.paint());
   }
 
   override async onWillAppear(ev: WillAppearEvent): Promise<void> {
@@ -62,6 +67,14 @@ export class CatalogKeyAction extends SingletonAction {
       case "link":
         await service.refreshGates();
         return;
+      case "cpu":
+      case "gpu":
+      case "ram":
+      case "battery":
+        // A forced sample, spawning probes and all — the deck's answer to
+        // "what is it doing *right now*".
+        await monitor.refresh(true);
+        return;
       default:
         if (this.def.action) await service.run(this.def.action);
     }
@@ -79,6 +92,11 @@ export class CatalogKeyAction extends SingletonAction {
         return this.meter("seven_day");
       case "link":
         return linkImage(service.isConnected(), pending);
+      case "cpu":
+      case "gpu":
+      case "ram":
+      case "battery":
+        return this.machine(this.def.behaviour);
       case "approve":
         // Idle it looks like any other key; with work waiting it goes amber and
         // carries the count, so the queue is visible from across the room.
@@ -105,6 +123,27 @@ export class CatalogKeyAction extends SingletonAction {
       default:
         return keyImage({ label: this.def.label, glyph: this.def.glyph, accent: this.def.accent, offline });
     }
+  }
+
+  /**
+   * A machine meter.
+   *
+   * Note what it does *not* pass: `offline`. Alone on the deck, these keys have
+   * nothing to do with whether agentglass is reachable — the computer is still
+   * here, and greying its CPU out because a web server went down would be the
+   * key telling a lie. They go dim only when the metric itself is unreadable,
+   * which `percent: null` already means: a desktop's battery, a box with no GPU.
+   */
+  private machine(id: MetricId): string {
+    const r = monitor.reading(id);
+    return meterImage({
+      label: this.def.label,
+      percent: r.percent,
+      history: monitor.history(id),
+      note: r.note,
+      // A full battery is not a problem; a full disk of RAM is.
+      tone: id === "battery" ? "charge" : "load",
+    });
   }
 
   private meter(id: WindowId): string {

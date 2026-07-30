@@ -488,6 +488,74 @@
       ]
     },
     {
+      "Name": "Monitor · CPU",
+      "UUID": "com.agentglass.controller.sys.cpu",
+      "Icon": "imgs/actions/sys.cpu/icon",
+      "Tooltip": "Processor load on this machine, with a minute and a half of trend.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/sys.cpu/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Monitor · GPU",
+      "UUID": "com.agentglass.controller.sys.gpu",
+      "Icon": "imgs/actions/sys.gpu/icon",
+      "Tooltip": "Graphics load on this machine. AMD and Intel via sysfs, NVIDIA via nvidia-smi.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/sys.gpu/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Monitor · Memory",
+      "UUID": "com.agentglass.controller.sys.ram",
+      "Icon": "imgs/actions/sys.ram/icon",
+      "Tooltip": "Memory in use on this machine, against what a new allocation could actually get.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/sys.ram/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
+      "Name": "Monitor · Battery",
+      "UUID": "com.agentglass.controller.sys.battery",
+      "Icon": "imgs/actions/sys.battery/icon",
+      "Tooltip": "Battery charge on this machine, and whether it is charging.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/settings.html",
+      "States": [
+        {
+          "Image": "imgs/actions/sys.battery/icon",
+          "TitleAlignment": "middle",
+          "Title": ""
+        }
+      ]
+    },
+    {
       "Name": "Dial · Approvals",
       "UUID": "com.agentglass.controller.dial.gate",
       "Icon": "imgs/actions/dial.gate/icon",

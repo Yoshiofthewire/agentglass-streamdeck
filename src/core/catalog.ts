@@ -17,6 +17,7 @@
  */
 
 import type { Action } from "./model.ts";
+import { METRICS, type MetricId } from "./system.ts";
 import type { GlyphId } from "../render/glyphs.ts";
 import type { AccentId } from "../render/theme.ts";
 
@@ -37,7 +38,11 @@ export type KeyBehaviour =
   | "usage-5h"
   | "usage-week"
   /** Draws link state; pressing it forces a refresh. */
-  | "link";
+  | "link"
+  /** Draws a meter for this machine rather than for agentglass. Named for the
+   *  metric it reads, which is what lets the key hand its own behaviour to the
+   *  monitor without a lookup table in between. */
+  | MetricId;
 
 export type KeyDef = {
   /** Appended to PLUGIN_UUID for the manifest UUID, and used as the icon path. */
@@ -258,7 +263,52 @@ export const KEYS: KeyDef[] = [
     tooltip: "Is agentglass reachable, and is anything waiting on you.",
     behaviour: "link",
   },
+
+  // --- this machine --------------------------------------------------------------
+  // The only keys on the deck that are not about agentglass. An agent that is
+  // building, testing and running containers is spending *your* machine, and
+  // the cockpit can't see any of it — so these read the computer directly and
+  // stay live whether or not agentglass is up.
+  {
+    id: "sys.cpu",
+    name: "Monitor · CPU",
+    label: "CPU",
+    glyph: "cpu",
+    accent: "meter",
+    tooltip: "Processor load on this machine, with a minute and a half of trend.",
+    behaviour: "cpu",
+  },
+  {
+    id: "sys.gpu",
+    name: "Monitor · GPU",
+    label: "GPU",
+    glyph: "gpu",
+    accent: "meter",
+    tooltip: "Graphics load on this machine. AMD and Intel via sysfs, NVIDIA via nvidia-smi.",
+    behaviour: "gpu",
+  },
+  {
+    id: "sys.ram",
+    name: "Monitor · Memory",
+    label: "Memory",
+    glyph: "ram",
+    accent: "meter",
+    tooltip: "Memory in use on this machine, against what a new allocation could actually get.",
+    behaviour: "ram",
+  },
+  {
+    id: "sys.battery",
+    name: "Monitor · Battery",
+    label: "Battery",
+    glyph: "battery",
+    accent: "meter",
+    tooltip: "Battery charge on this machine, and whether it is charging.",
+    behaviour: "battery",
+  },
 ];
+
+/** Is this key a machine meter — and therefore its own metric id? */
+export const isMetric = (b: KeyBehaviour): b is MetricId => (METRICS as readonly string[]).includes(b);
 
 /** The Stream Deck + encoders. Every one of these has key equivalents above, so
  *  a deck without dials loses nothing but the scrubbing feel. */

@@ -3,7 +3,8 @@
 An **[OpenDeck](https://github.com/nekename/OpenDeck)** (and Elgato Stream Deck)
 plugin that drives the [agentglass](https://github.com/SirAllap/agentglass)
 cockpit from a Stream Deck — switch workspace views, approve or deny held tool
-calls, drive the chat, and watch your plan usage, all on labelled keys.
+calls, drive the chat, and watch your plan usage and your machine's load, all on
+labelled keys.
 
 Every control is its own action. You drag **View · Git** onto a key and it *is*
 the git key — no inspector, no dropdown, no configuration. The only setting in
@@ -69,6 +70,48 @@ caption are two keys you press wrong.
 The meters sample `GET /usage` once a minute and keep the history in memory, so
 the graph is a rolling hour. Pressing a meter forces a re-read. A failed sample
 is skipped rather than charted as zero — a gap is not a drop in usage.
+
+### This machine
+
+| Key | What it shows |
+| --- | --- |
+| **Monitor · CPU** | Processor load, with the core count in the corner. |
+| **Monitor · GPU** | Graphics load, with the vendor in the corner. |
+| **Monitor · Memory** | Memory in use, with the machine's size in the corner. |
+| **Monitor · Battery** | Charge, and `chg` / `ac` / `full` / `bat` for what it is doing. |
+
+The only keys on the deck that are not about agentglass. An agent that is
+building, testing and running containers is spending *your* machine, and the
+cockpit can't see any of that — so these read the computer directly, on their
+own clock, and **stay live when agentglass is down**. A CPU meter that greys out
+because a web server went away would be lying about the CPU.
+
+Same meter face as the usage windows, sampled every 3 seconds, so each graph is
+90 seconds wide. The battery runs its colours the other way — rose when nearly
+empty, not when nearly full. Pressing any of them forces a sample.
+
+Where the numbers come from, and what that costs:
+
+| Metric | Source | Cost |
+| --- | --- | --- |
+| CPU | `os.cpus()` tick counters, differenced | free, every tick |
+| Memory | `/proc/meminfo` **MemAvailable** on Linux, `os.availableMemory()` elsewhere | free, every tick |
+| GPU | `gpu_busy_percent` in sysfs (AMD, Intel) | free, every tick |
+| GPU | `nvidia-smi` (NVIDIA) | a process spawn, every 15s |
+| Battery | `/sys/class/power_supply` (Linux) | free, every tick |
+| Battery | `pmset -g batt` (macOS) | a process spawn, every 15s |
+
+Memory is deliberately **MemAvailable**, not free memory: Linux counts the page
+cache as used, so `os.freemem()` would report a machine with gigabytes to spare
+as 95% full and leave the key amber all day. This is the number `free -h` prints
+under *available*.
+
+Anything this machine can't report reads `—` and sits dim rather than drawing a
+zero: a desktop's battery, a headless box's GPU, Windows batteries (a PowerShell
+CIM query is a third of a second of spawn for a number that moves once an hour —
+left out on purpose). The source is resolved once at startup, and the probes
+that cost a spawn are held to the slow tick, so the plugin does not show up in
+the CPU graph it is drawing.
 
 ### Dials (Stream Deck +)
 
@@ -139,6 +182,12 @@ key ─▶ CatalogKeyAction ─▶ Action ─▶ service ─▶ dispatch ─▶ 
 - **`src/core` + `src/client.ts` + `src/service.ts`** — the queue state, the
   `Action`→request table, the fetch/WebSocket client, and the service tying them
   together. No SDK imports, so `node --test` runs them directly.
+- **`src/core/system.ts` + `src/probe.ts` + `src/monitor.ts`** — the machine
+  meters, in the same three layers: the arithmetic and the parsing, the thing
+  that reads sysfs and spawns commands, and the sampler that owns the clock.
+  Separate from `service.ts` on purpose — these keys must not go dark when
+  agentglass does, and a separate object is what makes that structural rather
+  than a rule to remember while editing the offline path.
 - **`src/actions/`** — the thin layer that meets the hardware.
 
 ### A note on "connected"
@@ -152,11 +201,18 @@ while all of them worked.
 
 ## Status
 
-- 60 tests green: state, dispatch, client, service, the usage model, the render
+- 83 tests green: state, dispatch, client, service, the usage model, the machine
+  meters (sampling rules, the probe's parsing, the monitor's clock), the render
   layer, and catalog/manifest consistency.
-- Verified end-to-end against a stub OpenDeck and a stub agentglass: all 27 keys
-  register and paint, navigation and chat commands reach `/control`, and
-  scrub-then-approve decides the right gate.
+- Verified end-to-end against a stub OpenDeck and a stub agentglass: all 27
+  agentglass keys register and paint, navigation and chat commands reach
+  `/control`, and scrub-then-approve decides the right gate.
+- **The four machine meters have been run against real sensors** — an AMD
+  laptop under Linux, reading `gpu_busy_percent`, `/proc/meminfo` (checked
+  against `free -h`) and `/sys/class/power_supply` — and their art rasterised
+  and inspected. They have not yet been through the stub-OpenDeck run or a
+  physical panel, and the NVIDIA and macOS paths are covered only by parser
+  tests: nothing here has yet talked to `nvidia-smi` or `pmset`.
 - **Run on real hardware** — a FIFINE Ampligame D6 (15 keys, 3×5, no encoders)
   under OpenDeck on Linux, with no changes needed. `CodePath` launched the
   bundle directly, and the runtime-rendered SVG keys draw on a real panel. That

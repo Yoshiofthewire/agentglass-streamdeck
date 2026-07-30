@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { DIALS, KEYS } from "../src/core/catalog.ts";
 import { GLYPHS } from "../src/render/glyphs.ts";
 import { ACCENTS } from "../src/render/theme.ts";
-import { fitFontSize, keyImage, keySvg, linkSvg, meterSvg } from "../src/render/hud.ts";
+import { fitFontSize, keyImage, keySvg, linkSvg, meterColor, meterSvg } from "../src/render/hud.ts";
 
 /**
  * A deliberately strict, deliberately small XML check.
@@ -74,6 +74,22 @@ test("the meters render well-formed at every interesting reading", () => {
   // The states with no data at all: nothing sampled yet, and offline.
   assertWellFormed(meterSvg({ label: "Weekly", percent: 5, history: [] }), "meter empty history");
   assertWellFormed(meterSvg({ label: "Weekly", percent: 5, history: [9], offline: true }), "meter offline");
+});
+
+test("the machine meters render well-formed, including with no sensor", () => {
+  assertWellFormed(meterSvg({ label: "CPU", percent: 97, history: [4, 99], note: "16c" }), "cpu");
+  assertWellFormed(meterSvg({ label: "Memory", percent: 61, history: [60, 61], note: "23G" }), "memory");
+  assertWellFormed(meterSvg({ label: "Battery", percent: 8, history: [11, 8], note: "bat", tone: "charge" }), "battery");
+  // A desktop's battery, a headless box's GPU: no reading at all, ever.
+  assertWellFormed(meterSvg({ label: "Battery", percent: null, history: [], tone: "charge" }), "no battery");
+});
+
+test("the charge tone runs the other way — a full battery is not a warning", () => {
+  assert.equal(meterColor(95), ACCENTS.stop, "95% of a rate limit is nearly spent");
+  assert.equal(meterColor(95, "charge"), ACCENTS.meter, "95% of a battery is nearly full");
+  assert.equal(meterColor(8, "charge"), ACCENTS.stop);
+  assert.equal(meterColor(20, "charge"), ACCENTS.alert);
+  assert.equal(meterColor(8), ACCENTS.meter, "8% of a rate limit is nothing to report");
 });
 
 test("the link key renders well-formed in all three states", () => {
