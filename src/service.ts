@@ -199,6 +199,13 @@ export class AgentglassService {
 
   start(pollMs: number = DEFAULT_POLL_MS, usageMs: number = DEFAULT_USAGE_MS): void {
     if (!this.api) return;
+    // Idempotent, the way monitor.start() has always been. Reassigning
+    // `pollTimer` over a live handle orphans that interval permanently — stop()
+    // can only clear the one it can still see — so a second start() would leave
+    // the deck polling at double rate with no way to wind it back. That this
+    // could not happen today is a property of plugin.ts calling start() once,
+    // which is not a property this class should have to depend on.
+    if (this.pollTimer !== null) return;
     void this.refreshGates();
     void this.refreshUsage();
     this.pollTimer = setInterval(() => void this.refreshGates(), pollMs);
