@@ -127,3 +127,49 @@ test("the guard clears, so polling resumes after one finishes", async () => {
   await svc.refreshGates();
   assert.equal(api.starts, 2, "the second poll never ran");
 });
+
+/*
+ * The other half of the storm, and the one that made it exponential.
+ *
+ * Every handler used to close over `ws`, which is reassigned on each reconnect.
+ * A superseded socket erroring — routine when a server has stopped answering and
+ * several attempts are outstanding — therefore closed the *current* socket
+ * rather than itself, and that close scheduled another reconnect. One failure
+ * became two chains, then four. Live, it reached 5783 sockets in SYN-SENT
+ * against an accept queue that was already full.
+ */
+test("a superseded socket cannot restart the reconnect chain", async () => {
+  const made: FakeSocket[] = [];
+  class FakeSocket {
+    onopen: (() => void) | null = null;
+    onmessage: ((e: any) => void) | null = null;
+    onerror: (() => void) | null = null;
+    onclose: (() => void) | null = null;
+    closed = false;
+    url: string;
+    constructor(url: string) { this.url = url; made.push(this); }
+    close() { this.closed = true; this.onclose?.(); }
+  }
+  const realWs = (globalThis as any).WebSocket;
+  (globalThis as any).WebSocket = FakeSocket;
+  try {
+    const api = new AgentglassClient({ server: "http://127.0.0.1:1" });
+    const stop = api.connectStream(() => {}, () => {});
+    assert.equal(made.length, 1, "one socket to begin with");
+
+    // The first attempt fails and schedules a retry.
+    made[0].close();
+    await new Promise((r) => setTimeout(r, 700));
+    assert.equal(made.length, 2, "one retry, not several");
+
+    // Now the dead first socket errors, late, as a real one does. It must close
+    // itself and nothing else — the live socket keeps running.
+    made[0].onerror?.();
+    await new Promise((r) => setTimeout(r, 700));
+    assert.ok(!made[1].closed, "the live socket was closed by its predecessor");
+    assert.equal(made.length, 2, `the chain forked: ${made.length} sockets`);
+    stop();
+  } finally {
+    (globalThis as any).WebSocket = realWs;
+  }
+});

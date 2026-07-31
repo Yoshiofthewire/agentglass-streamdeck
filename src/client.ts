@@ -91,28 +91,49 @@ export class AgentglassClient {
     let ws: WebSocket | null = null;
     let backoff = 500;
 
+    /*
+     * Every handler talks about *its own* socket, never the outer `ws`.
+     *
+     * They used to close over `ws`, which is reassigned on every reconnect. So
+     * a superseded socket erroring — which is exactly what happens when a
+     * server stops answering and several attempts are outstanding — closed the
+     * *current* socket instead of itself. That close scheduled another
+     * reconnect, and since the same thing then happened to that one, one failure
+     * became two chains, then four. On a live machine it reached 5783 sockets in
+     * SYN-SENT against a server whose accept queue was already full.
+     *
+     * The `ws !== sock` guard is the other half: only the socket that is still
+     * the current one may schedule a reconnect or report the connection down. A
+     * dead predecessor has nothing to say about either.
+     */
     const open = () => {
       if (stopped) return;
-      ws = new WebSocket(buildWsUrl(this.cfg.server, this.cfg.token));
-      ws.onopen = () => {
+      const sock = new WebSocket(buildWsUrl(this.cfg.server, this.cfg.token));
+      ws = sock;
+      sock.onopen = () => {
+        if (ws !== sock) return;
         backoff = 500;
         onConnected(true);
       };
-      ws.onmessage = (ev: MessageEvent) => {
+      sock.onmessage = (ev: MessageEvent) => {
+        if (ws !== sock) return;
         try {
           onFrame(JSON.parse(String(ev.data)));
         } catch {
           /* a non-JSON frame is not ours */
         }
       };
-      ws.onerror = () => {
+      sock.onerror = () => {
         try {
-          ws?.close();
+          sock.close();
         } catch {
           /* already gone */
         }
       };
-      ws.onclose = () => {
+      sock.onclose = () => {
+        // A socket that has already been replaced must not restart the chain,
+        // or every stale failure forks a new one.
+        if (ws !== sock) return;
         onConnected(false);
         if (stopped) return;
         setTimeout(open, backoff);
