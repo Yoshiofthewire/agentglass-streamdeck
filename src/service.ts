@@ -140,7 +140,38 @@ export class AgentglassService {
     this.notify();
   }
 
+  /**
+   * One poll at a time, per endpoint.
+   *
+   * Without this a tick starts a request whether or not the last one finished,
+   * and against a server that has stopped answering that is unbounded: the
+   * timers keep firing, each request holds a socket until its 5s timeout, and
+   * an aborted `fetch` does not get its connection back promptly. Measured on a
+   * live machine — the plugin held 2702 established connections and 3620 file
+   * descriptors after four hours against a struggling agentglass.
+   *
+   * It also fed back. A server accepts TCP from the kernel's backlog even while
+   * its event loop is blocked, so every one of those connections was accepted,
+   * queued, and made the server slower — which timed out more polls, which
+   * opened more connections. The cockpit showed "Wrong server" over an empty
+   * dashboard because its own health probe could not be answered inside 2.5s.
+   *
+   * `monitor.ts` has had this guard all along (`sampling`); these two did not.
+   */
+  private gatesInFlight = false;
+  private usageInFlight = false;
+
   async refreshGates(): Promise<void> {
+    if (!this.api || this.gatesInFlight) return;
+    this.gatesInFlight = true;
+    try {
+      await this.pollGates();
+    } finally {
+      this.gatesInFlight = false;
+    }
+  }
+
+  private async pollGates(): Promise<void> {
     if (!this.api) return;
     const gates = await this.api.pendingGates();
     // A failed poll leaves the queue standing rather than clearing it. The keys
@@ -153,9 +184,15 @@ export class AgentglassService {
   }
 
   async refreshUsage(): Promise<void> {
-    if (!this.api) return;
-    this.usageState = applyUsage(this.usageState, await this.api.usage());
-    this.notify();
+    if (!this.api || this.usageInFlight) return;
+    this.usageInFlight = true;
+    try {
+      const u = await this.api.usage();
+      this.usageState = applyUsage(this.usageState, u);
+      this.notify();
+    } finally {
+      this.usageInFlight = false;
+    }
   }
 
   // --- lifecycle ---------------------------------------------------------
